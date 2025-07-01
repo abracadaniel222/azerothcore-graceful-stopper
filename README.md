@@ -44,6 +44,7 @@ cp azerothcore_graceful_stopper.conf.dist azerothcore_graceful_stopper.conf
 - Create SOAP user secrets
 
 ```
+sudo mkdir -p /etc/systemd/secrets
 echo "yoursoapuser" | sudo tee /etc/systemd/secrets/ac_soap_user > /dev/null
 echo "yourpassword" | sudo tee /etc/systemd/secrets/ac_soap_pass > /dev/null
 
