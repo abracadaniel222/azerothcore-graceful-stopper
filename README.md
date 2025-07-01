@@ -9,6 +9,7 @@ Running `sudo systemctl stop ac-worldserver` kills the process. This script allo
 ## Requirements
 
 - Linux
+- curl
 - systemd ≥ 250 (you can check with `systemctl --version`)
 - AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation with all the environment variables loaded up
 
