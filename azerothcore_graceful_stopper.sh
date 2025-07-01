@@ -51,3 +51,8 @@ if [ "$curl_exit" -ne 0 ] || [ "$code" != "200" ]; then
   echo "$body"
   exit 1
 fi
+
+# not timing out on purpose. If the server isn't shutting down then it ain't up to us to kill it
+while pidof -x worldserver > /dev/null; do
+  sleep 2
+done
