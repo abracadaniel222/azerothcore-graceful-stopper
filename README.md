@@ -34,11 +34,12 @@ git clone https://github.com/abracadaniel222/azerothcore-graceful-stopper.git
 chmod +x azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
 ```
 
-- (Optional) customize the soap server, port and shutdown timer
+- Create config file and set your credentials in it. Optionally you can also customize the soap server, port and shutdown timer
 
 ```
-cd $HOME/scripts/azerothcore-graceful-stopper
-cp azerothcore_graceful_stopper.conf.dist azerothcore_graceful_stopper.conf
+cp $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf.dist $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf
+# Note, after editing, you may want to lock the file
+# chmod 600 $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf
 ```
 
 - Create SOAP user secrets
