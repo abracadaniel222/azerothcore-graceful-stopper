@@ -15,6 +15,11 @@ if [ -f "$CONF_FILE" ]; then
   source "$CONF_FILE"
 fi
 
+if ! pgrep -u azerothuser worldserver > /dev/null; then
+  # already stopped
+  exit 0
+fi
+
 read -r -d '' SOAP_XML <<EOF
 <?xml version="1.0"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
