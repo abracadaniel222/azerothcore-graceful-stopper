@@ -10,19 +10,37 @@ Running `sudo systemctl stop ac-worldserver` kills the process. This script allo
 
 - Linux
 - systemd ≥ 250 (you can check with `systemctl --version`)
-- AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation
+- AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation with all the environment variables loaded up
 
 ## Setup
 
-- Log in as azerothuser (or whatever your `$AC_UNIT_USER` is) and check out the script
+- Log in as azerothuser (or whatever your `$AC_UNIT_USER` is)
+
+- Edit your worldserver.conf to enable SOAP (check AzerothCore docs)
+
+- Update your firewall to allow SOAP connections from localhost. For example, for ufw it would be:
+
+```
+sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 7878
+```
+
+- Check out the script wherever you want it to be
 
 ```
 mkdir -p $HOME/scripts
 cd $HOME/scripts
 git clone https://github.com/abracadaniel222/azerothcore-graceful-stopper.git
+chmod +x azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
 ```
 
-Create SOAP user secrets
+- (Optional) customize the soap server, port and shutdown timer
+
+```
+cd $HOME/scripts/azerothcore-graceful-stopper
+cp azerothcore_graceful_stopper.conf.dist azerothcore_graceful_stopper.conf
+```
+
+- Create SOAP user secrets
 
 ```
 echo "yoursoapuser" | sudo tee /etc/systemd/secrets/ac_soap_user > /dev/null
@@ -32,7 +50,7 @@ sudo chmod 600 /etc/systemd/secrets/ac_soap_*
 sudo chown root:root /etc/systemd/secrets/ac_soap_*
 ```
 
-Create/update the worldserver systemd service `/etc/systemd/system/ac-worldserver.service` by adding the new `ExecStop` and `LoadCredential` entries:
+- Create/update the worldserver systemd service `/etc/systemd/system/ac-worldserver.service` by adding the new `ExecStop` and `LoadCredential` entries
 
 ```
 sudo tee /etc/systemd/system/ac-worldserver.service << EOF
@@ -44,10 +62,10 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 RestartSec=1
-User=azerothuser
-WorkingDirectory=/home/azerothuser/azerothcore
-ExecStart=/bin/screen -S worldserver -D -m /home/azerothuser/azerothcore/env/dist/bin/worldserver
-ExecStop=/home/azerothuser/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
+User=$AC_UNIT_USER
+WorkingDirectory=$AC_CODE_DIR
+ExecStart=/bin/screen -S worldserver -D -m $AC_CODE_DIR/env/dist/bin/worldserver
+ExecStop=$( getent passwd "$AC_UNIT_USER" | cut -d: -f6 )/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
 
 # Load credentials into /run/cred/
 LoadCredential=ac_soap_user:/etc/systemd/secrets/ac_soap_user
@@ -59,3 +77,14 @@ TimeoutStopSec=70
 WantedBy=multi-user.target
 EOF
 ```
+
+- Reload service definition
+
+```
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+```
+
+## Usage
+
+The usage is through `systemctl`, so things like `sudo systemctl ac-worldserver restart` or `sudo systemctl ac-worldserver stop` should gracefully wait for the server to warn users and shutdown.
