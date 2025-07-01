@@ -10,7 +10,6 @@ Running `sudo systemctl stop ac-worldserver` kills the process. This script allo
 
 - Linux
 - curl
-- systemd ≥ 250 (you can check with `systemctl --version`)
 - AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation with all the environment variables loaded up
 
 ## Setup
@@ -42,18 +41,7 @@ cp $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf.
 # chmod 600 $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf
 ```
 
-- Create SOAP user secrets
-
-```
-sudo mkdir -p /etc/systemd/secrets
-echo "yoursoapuser" | sudo tee /etc/systemd/secrets/ac_soap_user > /dev/null
-echo "yourpassword" | sudo tee /etc/systemd/secrets/ac_soap_pass > /dev/null
-
-sudo chmod 600 /etc/systemd/secrets/ac_soap_*
-sudo chown root:root /etc/systemd/secrets/ac_soap_*
-```
-
-- Create/update the worldserver systemd service `/etc/systemd/system/ac-worldserver.service` by adding the new `ExecStop` and `LoadCredential` entries
+- Create/update the worldserver systemd service `/etc/systemd/system/ac-worldserver.service` by adding the new `ExecStop` entry
 
 ```
 sudo tee /etc/systemd/system/ac-worldserver.service << EOF
@@ -70,10 +58,6 @@ WorkingDirectory=$AC_CODE_DIR
 ExecStart=/bin/screen -S worldserver -D -m $AC_CODE_DIR/env/dist/bin/worldserver
 ExecStop=$( getent passwd "$AC_UNIT_USER" | cut -d: -f6 )/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
 
-# Load credentials into /run/cred/
-LoadCredential=ac_soap_user:/etc/systemd/secrets/ac_soap_user
-LoadCredential=ac_soap_pass:/etc/systemd/secrets/ac_soap_pass
-
 TimeoutStopSec=70
 
 [Install]
@@ -84,8 +68,7 @@ EOF
 - Reload service definition
 
 ```
-sudo systemctl daemon-reexec
-sudo systemctl daemon-reload
+sudo systemd daemon-reload
 ```
 
 ## Usage
