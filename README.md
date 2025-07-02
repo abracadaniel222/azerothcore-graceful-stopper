@@ -10,21 +10,13 @@ Running `sudo systemctl stop ac-worldserver` kills the process. This script allo
 
 - Linux
 - curl
-- AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation with all the environment variables loaded up
+- AzerothCore installed and setup per https://www.azerothcore.org/wiki/linux-core-installation , running with `screen` and with all the environment variables loaded up
 
 ## Setup
 
 - Log in as azerothuser (or whatever your `$AC_UNIT_USER` is)
 
-- Edit your worldserver.conf to enable SOAP (check AzerothCore docs)
-
-- Update your firewall to allow SOAP connections from localhost. For example, for ufw it would be:
-
-```
-sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 7878
-```
-
-- Check out the script wherever you want it to be
+- Check out the script wherever you want it to be. By default we'll use `$HOME/scripts`
 
 ```
 mkdir -p $HOME/scripts
@@ -33,12 +25,10 @@ git clone https://github.com/abracadaniel222/azerothcore-graceful-stopper.git
 chmod +x azerothcore-graceful-stopper/azerothcore_graceful_stopper.sh
 ```
 
-- Create config file and set your credentials in it. Optionally you can also customize the soap server, port and shutdown timer
+- (Optional) Create a custom config file if you want a different shutdown timer. The default is 60 seconds
 
 ```
 cp $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf.dist $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf
-# Note, after editing, you may want to lock the file
-# chmod 600 $HOME/scripts/azerothcore-graceful-stopper/azerothcore_graceful_stopper.conf
 ```
 
 - Create/update the worldserver systemd service `/etc/systemd/system/ac-worldserver.service` by adding the new `ExecStop` entry
